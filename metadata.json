@@ -1,0 +1,5 @@
+{
+  "name": "Markdown 專業編輯器",
+  "description": "支援視覺化(WYSIWYG)、雙欄預覽與原始碼模式的 Markdown 編輯器",
+  "requestFramePermissions": []
+}

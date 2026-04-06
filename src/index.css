@@ -1,0 +1,153 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@400;500;700&family=LXGW+WenKai+TC:wght@400;700&display=swap');
+@import url('https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css');
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Noto Serif TC", ui-serif, Georgia, serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-noto-sans: "Noto Sans TC", sans-serif;
+  --font-noto-serif: "Noto Serif TC", serif;
+  --font-lxgw: "LXGW WenKai TC", cursive;
+  --font-biaokai: "BiaoKai", "DFKai-SB", "Kaiti TC", "KaiTi", serif;
+}
+
+/* Dark mode support */
+html.dark {
+  color-scheme: dark;
+  background-color: #121212;
+}
+
+body {
+  @apply bg-gray-50 dark:bg-[#121212] text-gray-900 dark:text-[#e0e0e0];
+}
+
+/* High Contrast Dark Mode Prose Overrides */
+.dark .prose {
+  --tw-prose-body: #e0e0e0;
+  --tw-prose-headings: #ffffff;
+  --tw-prose-lead: #a0a0a0;
+  --tw-prose-links: #60a5fa;
+  --tw-prose-bold: #ffffff;
+  --tw-prose-counters: #a0a0a0;
+  --tw-prose-bullets: #4b5563;
+  --tw-prose-hr: #333333;
+  --tw-prose-quotes: #e0e0e0;
+  --tw-prose-quote-borders: #333333;
+  --tw-prose-captions: #a0a0a0;
+  --tw-prose-code: #ffffff;
+  --tw-prose-pre-code: #e0e0e0;
+  --tw-prose-pre-bg: #1e1e1e;
+  --tw-prose-th-borders: #333333;
+  --tw-prose-td-borders: #333333;
+}
+
+/* Custom scrollbar for a cleaner look */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: #4b5563;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
+}
+
+/* Tiptap Editor Styles */
+.ProseMirror {
+  outline: none;
+  min-height: 100%;
+}
+.ProseMirror p.is-editor-empty:first-child::before {
+  color: #adb5bd;
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+.ProseMirror table {
+  border-collapse: collapse;
+  table-layout: fixed;
+  width: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+.ProseMirror table td,
+.ProseMirror table th {
+  min-width: 1em;
+  border: 1px solid #cbd5e1;
+  padding: 3px 5px;
+  vertical-align: top;
+  box-sizing: border-box;
+  position: relative;
+}
+.dark .ProseMirror table td,
+.dark .ProseMirror table th {
+  border-color: #30363d;
+}
+.ProseMirror table th {
+  font-weight: bold;
+  text-align: left;
+  background-color: #f1f5f9;
+}
+.dark .ProseMirror table th {
+  background-color: #1f2937;
+}
+.ProseMirror img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+}
+
+/* Highlight.js GitHub Theme (Light) */
+html:not(.dark) .hljs {
+  color: #24292e;
+  background: #f6f8fa;
+}
+html:not(.dark) .hljs-keyword { color: #d73a49; }
+html:not(.dark) .hljs-title { color: #6f42c1; }
+html:not(.dark) .hljs-string { color: #032f62; }
+html:not(.dark) .hljs-comment { color: #6a737d; }
+
+/* Highlight.js GitHub Theme (Dark) */
+html.dark .hljs {
+  color: #c9d1d9;
+  background: #0d1117;
+}
+html.dark .hljs-keyword { color: #ff7b72; }
+html.dark .hljs-title { color: #d2a8ff; }
+html.dark .hljs-string { color: #a5d6ff; }
+html.dark .hljs-comment { color: #8b949e; }
+
+/* Print Optimization */
+@media print {
+  header, .no-print {
+    display: none !important;
+  }
+  main {
+    height: auto !important;
+    overflow: visible !important;
+    padding: 0 !important;
+  }
+  .prose {
+    max-width: 100% !important;
+  }
+  body {
+    background: white !important;
+    color: black !important;
+  }
+}
