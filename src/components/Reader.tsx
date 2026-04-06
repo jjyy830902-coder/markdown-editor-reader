@@ -17,8 +17,21 @@ interface Heading {
 }
 
 export function Reader({ content, fontSize, fontFamily }: ReaderProps) {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth >= 768);
   const [activeId, setActiveId] = useState<string>('');
+
+  // Handle window resize for sidebar
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 768) {
+        setIsSidebarOpen(false);
+      } else {
+        setIsSidebarOpen(true);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const headings = useMemo(() => {
     const slugger = new GithubSlugger();
@@ -69,16 +82,27 @@ export function Reader({ content, fontSize, fontFamily }: ReaderProps) {
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
       setActiveId(id);
+      if (window.innerWidth < 768) {
+        setIsSidebarOpen(false);
+      }
     }
   };
 
   return (
-    <div className="flex h-full bg-white dark:bg-[#121212] overflow-hidden rounded-lg border border-gray-200 dark:border-[#333333] shadow-sm transition-colors duration-300">
+    <div className="flex h-full bg-white dark:bg-[#121212] overflow-hidden rounded-lg border border-gray-200 dark:border-[#333333] shadow-sm transition-colors duration-300 relative">
+      {/* Sidebar Overlay for Mobile */}
+      {isSidebarOpen && (
+        <div 
+          className="md:hidden fixed inset-0 bg-black/50 z-20"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
       <div 
         className={cn(
-          "flex-shrink-0 border-r border-gray-200 dark:border-[#333333] bg-gray-50 dark:bg-[#1e1e1e] transition-all duration-300 overflow-y-auto no-print",
-          isSidebarOpen ? "w-64" : "w-0 border-r-0"
+          "absolute md:relative z-30 h-full flex-shrink-0 border-r border-gray-200 dark:border-[#333333] bg-gray-50 dark:bg-[#1e1e1e] transition-all duration-300 overflow-y-auto no-print",
+          isSidebarOpen ? "w-64 translate-x-0" : "w-64 -translate-x-full md:w-0 md:translate-x-0 md:border-r-0"
         )}
       >
         <div className="p-4 w-64">

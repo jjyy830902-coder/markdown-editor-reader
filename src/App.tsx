@@ -3,7 +3,7 @@ import { VisualEditor } from './components/VisualEditor';
 import { SourceEditor } from './components/SourceEditor';
 import { MarkdownPreview } from './components/MarkdownPreview';
 import { Reader } from './components/Reader';
-import { FileText, Columns, Code2, Download, Copy, Check, Upload, BookOpen, Edit3, Settings, Moon, Sun, Type, Maximize, Minimize } from 'lucide-react';
+import { FileText, Columns, Code2, Download, Copy, Check, Upload, BookOpen, Edit3, Settings, Moon, Sun, Type, Maximize, Minimize, MoreVertical } from 'lucide-react';
 import { cn } from './lib/utils';
 
 const INITIAL_MARKDOWN = `# 歡迎使用 Markdown 專業編輯器
@@ -105,7 +105,22 @@ export default function App() {
   const [fontSize, setFontSize] = useLocalStorage<string>('font-size', 'prose-base');
   const [fontFamily, setFontFamily] = useLocalStorage<string>('font-family', 'font-sans');
   const [showSettings, setShowSettings] = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+
+  // Responsive mode handling
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 768 && mode === 'split') {
+        setMode('visual');
+      }
+    };
+    
+    window.addEventListener('resize', handleResize);
+    handleResize(); // Check on initial load
+    
+    return () => window.removeEventListener('resize', handleResize);
+  }, [mode]);
 
   useEffect(() => {
     const handleFullscreenChange = () => {
@@ -178,11 +193,14 @@ export default function App() {
     <div className="min-h-screen bg-gray-100 dark:bg-[#121212] flex flex-col transition-colors duration-300">
       {/* Header */}
       <header className="bg-white dark:bg-[#1e1e1e] border-b border-gray-200 dark:border-[#333333] sticky top-0 z-50 no-print transition-colors duration-300">
-        <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-6">
+        <div className={cn(
+          "mx-auto px-4 h-16 flex items-center justify-between transition-all duration-300",
+          mode === 'split' ? "max-w-none w-full" : "max-w-7xl"
+        )}>
+          <div className="flex items-center gap-2 md:gap-6">
             <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400 font-semibold text-lg">
-              <FileText className="w-6 h-6" />
-              <span>MD Editor Pro</span>
+              <FileText className="w-6 h-6 shrink-0" />
+              <span className="hidden sm:inline">MD Editor Pro</span>
             </div>
             
             {/* Main Tabs */}
@@ -190,29 +208,31 @@ export default function App() {
               <button
                 onClick={() => setMainTab('editor')}
                 className={cn(
-                  "flex items-center gap-2 px-4 py-1.5 rounded-md text-sm font-medium transition-all",
+                  "flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-1.5 rounded-md text-sm font-medium transition-all",
                   mainTab === 'editor' ? "bg-white dark:bg-[#2d2d2d] text-blue-600 dark:text-white shadow-sm border border-transparent dark:border-[#333333]" : "text-gray-500 dark:text-[#a0a0a0] hover:text-gray-700 dark:hover:text-[#e0e0e0]"
                 )}
               >
                 <Edit3 className="w-4 h-4" />
-                編輯器
+                <span className="hidden sm:inline">編輯器</span>
+                <span className="sm:hidden">編輯</span>
               </button>
               <button
                 onClick={() => setMainTab('reader')}
                 className={cn(
-                  "flex items-center gap-2 px-4 py-1.5 rounded-md text-sm font-medium transition-all",
+                  "flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-1.5 rounded-md text-sm font-medium transition-all",
                   mainTab === 'reader' ? "bg-white dark:bg-[#2d2d2d] text-blue-600 dark:text-white shadow-sm border border-transparent dark:border-[#333333]" : "text-gray-500 dark:text-[#a0a0a0] hover:text-gray-700 dark:hover:text-[#e0e0e0]"
                 )}
               >
                 <BookOpen className="w-4 h-4" />
-                閱讀器
+                <span className="hidden sm:inline">閱讀器</span>
+                <span className="sm:hidden">閱讀</span>
               </button>
             </div>
           </div>
 
           {/* Mode Switcher (Only in Editor Tab) */}
           {mainTab === 'editor' && (
-            <div className="flex bg-gray-100 dark:bg-[#121212] p-1 rounded-lg border border-transparent dark:border-[#333333]">
+            <div className="hidden md:flex bg-gray-100 dark:bg-[#121212] p-1 rounded-lg border border-transparent dark:border-[#333333]">
               <button
                 onClick={() => setMode('visual')}
                 className={cn(
@@ -246,8 +266,8 @@ export default function App() {
             </div>
           )}
 
-          {/* Actions */}
-          <div className="flex items-center gap-2">
+          {/* Actions - Desktop */}
+          <div className="hidden md:flex items-center gap-2">
             <input
               type="file"
               accept=".md,.txt,text/markdown,text/plain"
@@ -364,11 +384,98 @@ export default function App() {
               )}
             </div>
           </div>
+
+          {/* Mobile Menu Button */}
+          <div className="md:hidden flex items-center gap-2">
+            <button
+              onClick={() => setShowMobileMenu(!showMobileMenu)}
+              className="p-2 text-gray-600 dark:text-[#e0e0e0] hover:bg-gray-100 dark:hover:bg-[#2d2d2d] rounded-md transition-colors"
+            >
+              <MoreVertical className="w-5 h-5" />
+            </button>
+          </div>
         </div>
+
+        {/* Mobile Menu Dropdown */}
+        {showMobileMenu && (
+          <div className="md:hidden border-t border-gray-200 dark:border-[#333333] bg-white dark:bg-[#1e1e1e] p-4 space-y-4">
+            {mainTab === 'editor' && (
+              <div className="flex bg-gray-100 dark:bg-[#121212] p-1 rounded-lg border border-transparent dark:border-[#333333]">
+                <button
+                  onClick={() => { setMode('visual'); setShowMobileMenu(false); }}
+                  className={cn(
+                    "flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all",
+                    mode === 'visual' ? "bg-white dark:bg-[#2d2d2d] text-gray-900 dark:text-white shadow-sm" : "text-gray-500 dark:text-[#a0a0a0]"
+                  )}
+                >
+                  <FileText className="w-4 h-4" />
+                  視覺
+                </button>
+                <button
+                  onClick={() => { setMode('source'); setShowMobileMenu(false); }}
+                  className={cn(
+                    "flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all",
+                    mode === 'source' ? "bg-white dark:bg-[#2d2d2d] text-gray-900 dark:text-white shadow-sm" : "text-gray-500 dark:text-[#a0a0a0]"
+                  )}
+                >
+                  <Code2 className="w-4 h-4" />
+                  原始碼
+                </button>
+              </div>
+            )}
+
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                onClick={() => { handleUploadClick(); setShowMobileMenu(false); }}
+                className="flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-gray-600 dark:text-[#e0e0e0] bg-gray-100 dark:bg-[#2d2d2d] rounded-md"
+              >
+                <Upload className="w-4 h-4" />
+                上傳
+              </button>
+              <button
+                onClick={() => { handleDownload(); setShowMobileMenu(false); }}
+                className="flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-md"
+              >
+                <Download className="w-4 h-4" />
+                下載
+              </button>
+              <button
+                onClick={() => { handleCopy(); setShowMobileMenu(false); }}
+                className="flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-gray-600 dark:text-[#e0e0e0] bg-gray-100 dark:bg-[#2d2d2d] rounded-md col-span-2"
+              >
+                {copied ? <Check className="w-4 h-4 text-green-600 dark:text-green-400" /> : <Copy className="w-4 h-4" />}
+                {copied ? '已複製' : '複製全部內容'}
+              </button>
+            </div>
+
+            <div className="border-t border-gray-200 dark:border-[#333333] pt-4">
+              <span className="text-sm text-gray-700 dark:text-[#a0a0a0] block mb-2">外觀模式</span>
+              <div className="flex bg-gray-100 dark:bg-[#121212] rounded-md p-1">
+                <button
+                  onClick={() => setIsDarkMode(false)}
+                  className={`flex-1 flex items-center justify-center gap-2 py-2 text-sm rounded ${!isDarkMode ? 'bg-white shadow-sm text-blue-600' : 'text-gray-600 dark:text-[#a0a0a0]'}`}
+                >
+                  <Sun className="w-4 h-4" />
+                  淺色
+                </button>
+                <button
+                  onClick={() => setIsDarkMode(true)}
+                  className={`flex-1 flex items-center justify-center gap-2 py-2 text-sm rounded ${isDarkMode ? 'dark:bg-[#2d2d2d] shadow-sm text-blue-400' : 'text-gray-600 dark:text-[#a0a0a0]'}`}
+                >
+                  <Moon className="w-4 h-4" />
+                  深色
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </header>
 
       {/* Main Content Area */}
-      <main className="flex-grow flex flex-col p-4 max-w-7xl mx-auto w-full h-[calc(100vh-4rem-2.5rem)]">
+      <main className={cn(
+        "flex-grow flex flex-col p-2 md:p-4 mx-auto w-full h-[calc(100vh-4rem-2.5rem)] transition-all duration-300",
+        mode === 'split' ? "max-w-none" : "max-w-7xl"
+      )}>
         {mainTab === 'editor' ? (
           <>
             {mode === 'visual' && (
@@ -384,8 +491,8 @@ export default function App() {
             )}
 
             {mode === 'split' && (
-              <div className="flex-grow flex gap-4 h-full">
-                <div className="w-1/2 h-full border border-gray-200 dark:border-[#333333] rounded-lg overflow-hidden shadow-sm">
+              <div className="flex-grow flex flex-col md:flex-row gap-2 md:gap-4 h-full">
+                <div className="w-full md:w-1/2 h-1/2 md:h-full border border-gray-200 dark:border-[#333333] rounded-lg overflow-hidden shadow-sm">
                   <SourceEditor 
                     content={markdown} 
                     onChange={setMarkdown} 
@@ -393,7 +500,7 @@ export default function App() {
                     fontFamily={fontFamily}
                   />
                 </div>
-                <div className="w-1/2 h-full border border-gray-200 dark:border-[#333333] rounded-lg overflow-y-auto bg-white dark:bg-[#121212] p-8 shadow-sm">
+                <div className="w-full md:w-1/2 h-1/2 md:h-full border border-gray-200 dark:border-[#333333] rounded-lg overflow-y-auto bg-white dark:bg-[#121212] p-4 md:p-8 shadow-sm">
                   <MarkdownPreview 
                     content={markdown} 
                     fontSize={fontSize}
